@@ -1,5 +1,6 @@
-import LoadingButton from "@/components/LoadingButton";
-import { Button } from "@/components/ui/button";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
@@ -10,29 +11,36 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import LoadingButton from "@/components/LoadingButton";
+import { Button } from "@/components/ui/button";
 import { User } from "@/types";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 
 const formSchema = z.object({
   email: z.string().optional(),
-  name: z.string().min(1, "NameIs Required"),
-  addressLine1: z.string().min(1, "Address Line 1 Is Required"),
-  country: z.string().min(1, "Country Is Required"),
-  city: z.string().min(1, "City Is Required"),
+  name: z.string().min(1, "name is required"),
+  addressLine1: z.string().min(1, "Address Line 1 is required"),
+  city: z.string().min(1, "City is required"),
+  country: z.string().min(1, "Country is required"),
 });
 
-type UserFormData = z.infer<typeof formSchema>;
+export type UserFormData = z.infer<typeof formSchema>;
 
 type Props = {
+  currentUser: User;
   onSave: (userProfileData: UserFormData) => void;
   isLoading: boolean;
-  currentUser: User;
+  title?: string;
+  buttonText?: string;
 };
 
-const UserProfileForm = ({ onSave, isLoading, currentUser }: Props) => {
+const UserProfileForm = ({
+  onSave,
+  isLoading,
+  currentUser,
+  title = "User Profile",
+  buttonText = "Submit",
+}: Props) => {
   const form = useForm<UserFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: currentUser,
@@ -46,12 +54,12 @@ const UserProfileForm = ({ onSave, isLoading, currentUser }: Props) => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSave)}
-        className="space-y-4 bg-grey-50 rounded-lg md:p-10"
+        className="space-y-4 bg-gray-50 rounded-lg md:p-10"
       >
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold">User Profile Form</h2>
+        <div>
+          <h2 className="text-2xl font-bold">{title}</h2>
           <FormDescription>
-            View and Change Your Profile Information Here
+            View and change your profile information here
           </FormDescription>
         </div>
         <FormField
@@ -95,7 +103,6 @@ const UserProfileForm = ({ onSave, isLoading, currentUser }: Props) => {
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="city"
@@ -109,7 +116,6 @@ const UserProfileForm = ({ onSave, isLoading, currentUser }: Props) => {
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="country"
@@ -124,12 +130,11 @@ const UserProfileForm = ({ onSave, isLoading, currentUser }: Props) => {
             )}
           />
         </div>
-
         {isLoading ? (
           <LoadingButton />
         ) : (
           <Button type="submit" className="bg-orange-500">
-            Submit
+            {buttonText}
           </Button>
         )}
       </form>
